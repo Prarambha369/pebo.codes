@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Oversized raw source (exceeds GitHub 100MB file limit — keep local only)
+public/media/source-video.mp4

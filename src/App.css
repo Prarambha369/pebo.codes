@@ -1,42 +1,829 @@
-#root {
-  max-width: 1280px;
+/* ============================================================
+   Shell + background
+   ============================================================ */
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+.media-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: var(--bg);
+}
+
+.media-bg__video,
+.media-bg__poster,
+.media-bg__fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-bg__fallback {
+  background: #12181f;
+}
+
+/* Vignette-leaning scrim: keeps edges readable, lets the footage breathe. */
+.media-bg__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(130% 90% at 50% 40%, rgba(10, 14, 19, 0.18) 0%, rgba(10, 14, 19, 0.55) 70%, rgba(10, 14, 19, 0.78) 100%),
+    linear-gradient(180deg, rgba(10, 14, 19, 0.35) 0%, rgba(10, 14, 19, 0.3) 45%, rgba(10, 14, 19, 0.62) 100%);
+}
+
+/* ============================================================
+   Entry gate
+   ============================================================ */
+.entry-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  padding: 1.5rem;
+  background: rgba(9, 12, 17, 0.5);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  animation: fade-in 420ms var(--ease) both;
+}
+
+.entry-gate--leaving {
+  animation: fade-out 420ms var(--ease) forwards;
+  pointer-events: none;
+}
+
+.entry-gate__inner {
+  width: min(380px, 100%);
+}
+
+.entry-gate__card {
+  padding: 2rem 1.75rem;
+  text-align: center;
+  animation: rise-in 520ms var(--ease) both;
+}
+
+.entry-gate__eyebrow {
+  margin: 0 0 1.1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.entry-gate__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.entry-gate__hint {
+  margin: 0.5rem auto 0;
+  max-width: 30ch;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.entry-gate__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 10px;
+  color: var(--accent-ink);
+  background: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.entry-gate__sound {
+  margin: 1rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--muted-soft);
+  font-size: 0.76rem;
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   Main layout — centered column
+   ============================================================ */
+.site-main {
+  position: relative;
+  z-index: 2;
+  width: min(460px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 0 calc(7rem + env(safe-area-inset-bottom, 0px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.site-main--visible {
+  opacity: 1;
+  pointer-events: auto;
+  animation: fade-in 520ms 80ms var(--ease) both;
+}
+
+/* ============================================================
+   Profile card (guns.lol structure, restrained taste)
+   ============================================================ */
+.profile {
+  display: grid;
+  place-items: center;
+  min-height: calc(100dvh - 4rem);
+  /* Keep the centered card clear of the fixed bottom player. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  perspective: 1000px;
+}
+
+.profile-card {
+  width: 100%;
+  padding: 1.9rem 1.6rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Restrained glow: a whisper of the accent, not neon. */
+.profile-card--glow {
+  box-shadow:
+    var(--shadow-md),
+    0 0 80px var(--accent-dim);
+}
+
+/* Subtle 3D tilt (transform driven inline by the useTilt hook). */
+.profile-card--tilt {
+  transition: transform 200ms var(--ease);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.profile-avatar {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 0 0 2px rgba(13, 18, 23, 0.6),
+    0 0 0 3px var(--accent-dim),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-monogram {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: var(--text);
+}
+
+.profile-name {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.65rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.profile-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+.profile-badge {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 7px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+}
+
+.profile-badge--exclusive {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: transparent;
+  box-shadow: 0 0 14px var(--accent-dim);
+}
+
+.profile-tagline {
+  margin: 0.75rem 0 0;
+  min-height: 1.4em;
+  color: var(--text);
+  opacity: 0.86;
+  font-size: 0.96rem;
+}
+
+.profile-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--accent);
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.profile-bio {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.85rem;
+  margin-top: 0.85rem;
+  font-size: 0.78rem;
+  color: var(--muted-soft);
+}
+
+.profile-meta__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.profile-meta__item .icon { opacity: 0.85; }
+
+.profile-meta__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---- Icon-only social row ---- */
+.profile-socials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.3rem;
+}
+
+.profile-social {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  text-decoration: none;
+  transition: transform 160ms var(--ease), color 160ms var(--ease),
+    border-color 160ms var(--ease), background 160ms var(--ease);
+}
+
+.profile-social:hover,
+.profile-social:focus-visible {
+  color: var(--text);
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* ---- Discord presence embedded in the card ---- */
+.profile-card .discord-status {
+  width: 100%;
+  margin-top: 1.3rem;
+  padding: 0.85rem;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  /* Avoid blur-on-blur and double shadow from nesting glass panels. */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.discord-status__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.discord-status__title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.discord-status__title .icon { color: var(--muted); }
+
+.discord-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.48rem;
+  border-radius: 7px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.discord-status__body {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.discord-status__profile {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.discord-status__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.4);
+}
+.discord-status__avatar-wrap--online { background: #3ba55d; }
+.discord-status__avatar-wrap--idle { background: #d9a53b; }
+.discord-status__avatar-wrap--dnd { background: #d44b4b; }
+
+.discord-status__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: block;
+  border: 2px solid var(--bg-elev);
+}
+.discord-status__avatar--empty { background: rgba(148, 163, 184, 0.25); }
+
+.discord-status__user,
+.discord-status__activity,
+.discord-status__meta { margin: 0; }
+
+.discord-status__user {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.discord-status__activity {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.discord-status__activity--muted { color: var(--muted-soft); }
+
+.discord-status__meta {
+  color: var(--muted-soft);
+  font-size: 0.78rem;
+}
+
+.discord-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #94a3b8;
+}
+.discord-dot--online { background: #3ba55d; }
+.discord-dot--idle { background: #d9a53b; }
+.discord-dot--dnd { background: #d44b4b; }
+
+.discord-spotify {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.55rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+}
+
+.discord-spotify__art {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.discord-spotify__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.06rem;
+  min-width: 0;
+}
+
+.discord-spotify__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.64rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.discord-spotify__song {
+  font-weight: 600;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discord-spotify__artist {
+  font-size: 0.76rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   Journey — secondary section below the card
+   ============================================================ */
+.journey-section {
+  margin-top: 1.25rem;
+  scroll-margin-top: 2rem;
+}
+
+.journey-panel {
+  padding: 1.5rem;
+}
+
+.journey-kicker {
+  display: inline-block;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.journey-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.journey-intro {
+  color: var(--muted);
+  margin: 0.5rem 0 1.3rem;
+  font-size: 0.9rem;
+}
+
+.journey-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0;
+}
+
+.journey-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 0.75rem;
+  padding-bottom: 1.2rem;
+}
+.journey-item:last-child { padding-bottom: 0; }
+
+.journey-marker {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.journey-node {
+  position: relative;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.journey-item:not(:last-child) .journey-marker::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  bottom: -1.2rem;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.journey-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.journey-period {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.journey-text {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer {
+  margin-top: 1.5rem;
+  color: var(--muted-soft);
+  font-size: 0.78rem;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* ============================================================
+   Mini player
+   ============================================================ */
+.mini-player.glass-panel {
+  position: fixed;
+  z-index: 25;
+  left: 50%;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 130%);
+  width: min(440px, calc(100% - 1.5rem));
+  padding: 0.6rem 0.7rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: var(--radius);
+  background: var(--surface-solid);
+  opacity: 0;
+  transition: transform 420ms var(--ease), opacity 300ms var(--ease);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.mini-player--visible.glass-panel {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.mini-player__play {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: opacity 150ms var(--ease);
+}
+.mini-player__play:hover,
+.mini-player__play:focus-visible { opacity: 0.9; }
+
+.mini-player__main {
+  min-width: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.mini-player__top {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.mini-player__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mini-player__title {
+  font-weight: 600;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-player__sub {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mini-player__status { color: var(--muted); }
+.mini-player__dot { opacity: 0.45; }
+/* When there's no video to control, the play button is absent. */
+.mini-player--no-video.glass-panel { grid-template-columns: 1fr auto; }
+
+.mini-player__eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.mini-player__eq i {
+  width: 2px;
+  height: 35%;
+  border-radius: 2px;
+  background: var(--accent);
+  transform-origin: bottom;
+}
+.mini-player__eq[data-playing='true'] i {
+  animation: eq 1200ms ease-in-out infinite;
+}
+.mini-player__eq i:nth-child(1) { animation-delay: 0ms; }
+.mini-player__eq i:nth-child(2) { animation-delay: 240ms; height: 70%; }
+.mini-player__eq i:nth-child(3) { animation-delay: 480ms; height: 50%; }
+.mini-player__eq i:nth-child(4) { animation-delay: 160ms; height: 80%; }
+
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.45); }
+  50% { transform: scaleY(1); }
+}
+
+.mini-player__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.mini-player__icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 150ms var(--ease), background 150ms var(--ease);
+}
+.mini-player__icon-btn:hover,
+.mini-player__icon-btn:focus-visible {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mini-player__volume { width: 64px; }
+
+/* ============================================================
+   Scroll reveal
+   ============================================================ */
+.reveal { opacity: 1; }
+
+.reveal.reveal-armed {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 560ms var(--ease), transform 560ms var(--ease);
+}
+
+.reveal.reveal-armed.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+.journey-panel.reveal-armed.is-revealed .journey-item {
+  animation: item-in 460ms var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+@keyframes item-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 560px) {
+  .entry-gate__card,
+  .journey-panel {
+    padding: 1.5rem 1.25rem;
   }
-  to {
-    transform: rotate(360deg);
+  .profile-card {
+    padding: 1.7rem 1.1rem 1.3rem;
+  }
+  /* Keep all social icons on one row down to ~360px. */
+  .profile-socials {
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+  }
+  .profile-social {
+    width: 38px;
+    height: 38px;
+    flex: 1 1 auto;
+    max-width: 44px;
+  }
+  .mini-player__volume {
+    display: none;
+  }
+  .mini-player.glass-panel {
+    gap: 0.55rem;
+    padding: 0.55rem;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .entry-gate,
+  .entry-gate__card,
+  .entry-gate--leaving,
+  .site-main--visible,
+  .journey-panel.reveal-armed.is-revealed .journey-item {
+    animation: none !important;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  .profile-social {
+    transition: color 150ms var(--ease), border-color 150ms var(--ease);
+  }
+  .profile-social:hover,
+  .profile-social:focus-visible { transform: none; }
+  .profile-card--tilt { transition: none; }
+  .profile-caret { animation: none; }
+  .mini-player.glass-panel {
+    transition: opacity 240ms var(--ease);
+    transform: translate(-50%, 0);
+  }
+  .mini-player.glass-panel:not(.mini-player--visible) {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mini-player__eq[data-playing='true'] i {
+    animation: none;
+    height: 55%;
+  }
+  .reveal.reveal-armed {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
 }

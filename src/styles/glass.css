@@ -1,0 +1,61 @@
+/* ============================================================
+   Surfaces — flat, legible panels over the footage.
+   Near-opaque fill + hairline border + light blur. No gradients,
+   no specular highlights, no colored edge-glow.
+   ============================================================ */
+.glass-panel {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass-panel {
+    -webkit-backdrop-filter: blur(16px) saturate(115%);
+    backdrop-filter: blur(16px) saturate(115%);
+  }
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass-panel {
+    background: var(--surface-solid);
+  }
+}
+
+/* ============================================================
+   Range input (volume)
+   ============================================================ */
+.mini-player__volume {
+  --value: 0%;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--value),
+    rgba(255, 255, 255, 0.16) var(--value)
+  );
+  cursor: pointer;
+  outline-offset: 4px;
+}
+
+.mini-player__volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--text);
+  border: none;
+}
+
+.mini-player__volume::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--text);
+  border: none;
+}
+
